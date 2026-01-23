@@ -1,0 +1,31 @@
+import 'package:flutter/material.dart';
+
+class LoadingOverlay extends StatelessWidget {
+  final bool isLoading;
+  final Widget child;
+  final Color? overlayColor;
+  const LoadingOverlay({
+    super.key,
+    required this.isLoading,
+    required this.child,
+    this.overlayColor,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Stack(
+      children: [
+        child,
+        if (isLoading)
+          Container(
+            color: overlayColor ?? Colors.black.withAlpha(30),
+            child: Center(
+              child: CircularProgressIndicator(
+                color: Theme.of(context).colorScheme.primary,
+              ),
+            ),
+          ),
+      ],
+    );
+  }
+}

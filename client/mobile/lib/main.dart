@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:simple_chat/core/di/service_locator.dart';
 import 'package:simple_chat/core/theme/app_theme.dart';
 import 'package:simple_chat/core/theme/theme_provider.dart';
 import 'package:simple_chat/features/auth/presentation/pages/login.dart';
 
 void main() {
+  setupServiceLocator();
   runApp(const MainApp());
 }
 

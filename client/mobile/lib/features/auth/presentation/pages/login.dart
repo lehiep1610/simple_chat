@@ -2,6 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:simple_chat/core/theme/theme_provider.dart';
 import 'package:simple_chat/core/utils/validators.dart';
 
+import '../../../../core/di/service_locator.dart';
+import '../../../../core/widgets/loading_overlay.dart';
+import '../../domain/usecases/login_usecase.dart';
+
 class LoginPage extends StatefulWidget {
   final ThemeProvider themeProvider;
   const LoginPage({super.key, required this.themeProvider});
@@ -20,6 +24,11 @@ class _LoginPageState extends State<LoginPage> {
 
   //Error messages
   String? _emailError;
+
+  // Login usecase
+  final LoginUsecase _loginUsecase = sl<LoginUsecase>();
+  bool _isLoading = false;
+  String? _loginError;
 
   @override
   void initState() {
@@ -46,7 +55,7 @@ class _LoginPageState extends State<LoginPage> {
     super.dispose();
   }
 
-  void _handleLogin() {
+  Future<void> _handleLogin() async {
     // Reset errors
     setState(() {
       _emailError = null;
@@ -62,51 +71,79 @@ class _LoginPageState extends State<LoginPage> {
 
     // If both are valid, perform login
     if (emailError == null && _arePasswordRequirements()) {
-      // Show success message
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Login successful!'),
-          behavior: SnackBarBehavior.floating,
-          backgroundColor: Colors.green,
-        ),
-      );
+      await _performLogin();
     }
+  }
+
+  Future<void> _performLogin() async {
+    setState(() {
+      _isLoading = true;
+    });
+    final result = await _loginUsecase.call(
+      email: _emailController.text,
+      password: _passwordController.text,
+    );
+
+    result.fold(
+      (failure) {
+        setState(() {
+          _loginError = failure.message;
+        });
+      },
+      (user) {
+        //Show success message
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Login successful!'),
+            behavior: SnackBarBehavior.floating,
+            backgroundColor: Colors.green,
+          ),
+        );
+      },
+    );
+    setState(() {
+      _isLoading = false;
+    });
   }
 
   @override
   Widget build(BuildContext context) {
     final isLoginEnabled = _arePasswordRequirements();
-    return Scaffold(
-      appBar: PreferredSize(
-        preferredSize: Size(double.infinity, kToolbarHeight),
-        child: _AppBar(themeProvider: widget.themeProvider),
-      ),
-      body: SafeArea(
-        child: Center(
-          child: Padding(
-            padding: EdgeInsets.symmetric(horizontal: 20),
-            child: Form(
-              key: _formKey,
-              child: Column(
-                children: [
-                  SizedBox(height: MediaQuery.of(context).size.height * 0.12),
-                  Text(
-                    'Welcome to\nSimple Chat!',
-                    style: Theme.of(context).textTheme.headlineLarge?.copyWith(
-                      fontWeight: FontWeight.bold,
+    return LoadingOverlay(
+      isLoading: _isLoading,
+      child: Scaffold(
+        appBar: PreferredSize(
+          preferredSize: Size(double.infinity, kToolbarHeight),
+          child: _AppBar(themeProvider: widget.themeProvider),
+        ),
+        body: SafeArea(
+          child: Center(
+            child: Padding(
+              padding: EdgeInsets.symmetric(horizontal: 20),
+              child: Form(
+                key: _formKey,
+                child: Column(
+                  children: [
+                    SizedBox(height: MediaQuery.of(context).size.height * 0.12),
+                    Text(
+                      'Welcome to\nSimple Chat!',
+                      style: Theme.of(context).textTheme.headlineLarge
+                          ?.copyWith(fontWeight: FontWeight.bold),
+                      textAlign: TextAlign.center,
                     ),
-                    textAlign: TextAlign.center,
-                  ),
-                  SizedBox(height: 20),
-                  _EmailField(
-                    controller: _emailController,
-                    errorText: _emailError,
-                  ),
-                  SizedBox(height: 16),
-                  _PasswordField(controller: _passwordController),
-                  SizedBox(height: 40),
-                  _LoginButton(onPressed: isLoginEnabled ? _handleLogin : null),
-                ],
+                    SizedBox(height: 20),
+                    _EmailField(
+                      controller: _emailController,
+                      errorText: _emailError,
+                    ),
+                    SizedBox(height: 16),
+                    _PasswordField(controller: _passwordController),
+                    SizedBox(height: 40),
+                    _LoginButton(
+                      onPressed: isLoginEnabled ? _handleLogin : null,
+                    ),
+                  ],
+                ),
               ),
             ),
           ),
