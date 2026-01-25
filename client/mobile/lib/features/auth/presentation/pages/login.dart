@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:simple_chat/core/theme/theme_provider.dart';
+import 'package:simple_chat/core/utils/either_extension.dart';
 import 'package:simple_chat/core/utils/validators.dart';
 
 import '../../../../core/di/service_locator.dart';
+import '../../../../core/utils/error_handler.dart';
+import '../../../../core/utils/snackbar_helper.dart';
 import '../../../../core/widgets/loading_overlay.dart';
 import '../../domain/usecases/login_usecase.dart';
 
@@ -84,23 +87,19 @@ class _LoginPageState extends State<LoginPage> {
       password: _passwordController.text,
     );
 
-    result.fold(
-      (failure) {
-        setState(() {
-          _loginError = failure.message;
-        });
-      },
-      (user) {
-        //Show success message
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Login successful!'),
-            behavior: SnackBarBehavior.floating,
-            backgroundColor: Colors.green,
-          ),
-        );
-      },
-    );
+    if (mounted) {
+      result.handleResult(
+        context,
+        onSuccess: (user) {
+          SnackbarHelper.showSuccess(context, 'Login successful!');
+          // Navigate to home page
+          // Navigator.pushReplacementNamed(context, '/home');
+        },
+        onError: (failure) {
+          ErrorHandler.handleFailure(context, failure);
+        },
+      );
+    }
     setState(() {
       _isLoading = false;
     });

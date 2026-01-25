@@ -1,5 +1,5 @@
 class ApiConstants {
-  static const String baseUrl = 'http://localhost:3000';
+  static const String baseUrl = 'http://localhost:3000/api';
 
   // Auth endpoints
   static const String login = '/auth/login';
