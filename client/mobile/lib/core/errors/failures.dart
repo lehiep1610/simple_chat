@@ -1,11 +1,11 @@
 abstract class Failure {
   final String message;
-
-  Failure({required this.message});
+  final int? code;
+  Failure({required this.message, this.code});
 }
 
 class ServerFailure extends Failure {
-  ServerFailure({required super.message});
+  ServerFailure({required super.message, super.code});
 }
 
 class NetworkFailure extends Failure {
@@ -15,5 +15,14 @@ class NetworkFailure extends Failure {
 
 class UnauthorizedFailure extends Failure {
   UnauthorizedFailure([String message = 'Unauthorized'])
-    : super(message: message);
+    : super(message: message, code: 401);
+}
+
+class ValidationFailure extends Failure {
+  ValidationFailure({required super.message}) : super(code: 400);
+}
+
+class NotFoundFailure extends Failure {
+  NotFoundFailure([String message = 'Resource not found'])
+    : super(message: message, code: 404);
 }
