@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:simple_chat/core/router/app_router.dart';
+import 'package:simple_chat/core/router/route_names.dart';
 import 'package:simple_chat/core/theme/theme_provider.dart';
 import 'package:simple_chat/core/utils/either_extension.dart';
 import 'package:simple_chat/core/utils/validators.dart';
@@ -36,6 +38,8 @@ class _LoginPageState extends State<LoginPage> {
   @override
   void initState() {
     super.initState();
+    _emailController.text = 'test@gmail.com';
+    _passwordController.text = '12345678a@';
     _passwordController.addListener(_onPasswordChanged);
   }
 
@@ -93,7 +97,7 @@ class _LoginPageState extends State<LoginPage> {
         onSuccess: (user) {
           SnackbarHelper.showSuccess(context, 'Login successful!');
           // Navigate to home page
-          // Navigator.pushReplacementNamed(context, '/home');
+          AppRouter.navigateAndReplace(context, RouteNames.home);
         },
         onError: (failure) {
           ErrorHandler.handleFailure(context, failure);
