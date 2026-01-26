@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:simple_chat/core/di/service_locator.dart';
+import 'package:simple_chat/core/router/app_router.dart';
+import 'package:simple_chat/core/router/route_names.dart';
+import 'package:simple_chat/core/router/route_observer.dart';
 import 'package:simple_chat/core/theme/app_theme.dart';
 import 'package:simple_chat/core/theme/theme_provider.dart';
 import 'package:simple_chat/features/auth/presentation/pages/login.dart';
@@ -18,6 +21,13 @@ class MainApp extends StatefulWidget {
 
 class _MainAppState extends State<MainApp> {
   final ThemeProvider _themeProvider = ThemeProvider();
+  late final AppRouter _appRouter;
+
+  @override
+  void initState() {
+    super.initState();
+    _appRouter = AppRouter(themeProvider: _themeProvider);
+  }
 
   @override
   void dispose() {
@@ -30,12 +40,14 @@ class _MainAppState extends State<MainApp> {
     return ValueListenableBuilder<ThemeMode>(
       valueListenable: _themeProvider.themeMode,
       builder: (context, themeMode, child) => MaterialApp(
+        debugShowCheckedModeBanner: false,
         theme: AppTheme.lightTheme,
         darkTheme: AppTheme.darkTheme,
         themeMode: themeMode,
-        home: child,
+        onGenerateRoute: _appRouter.generateRoute,
+        navigatorObservers: [routeObserver],
+        home: LoginPage(themeProvider: _themeProvider),
       ),
-      child: LoginPage(themeProvider: _themeProvider),
     );
   }
 }
