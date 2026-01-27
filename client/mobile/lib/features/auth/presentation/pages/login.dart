@@ -4,6 +4,7 @@ import 'package:simple_chat/core/router/route_names.dart';
 import 'package:simple_chat/core/theme/theme_provider.dart';
 import 'package:simple_chat/core/utils/either_extension.dart';
 import 'package:simple_chat/core/utils/validators.dart';
+import 'package:simple_chat/core/widgets/app_button.dart';
 
 import '../../../../core/di/service_locator.dart';
 import '../../../../core/utils/error_handler.dart';
@@ -33,7 +34,6 @@ class _LoginPageState extends State<LoginPage> {
   // Login usecase
   final LoginUsecase _loginUsecase = sl<LoginUsecase>();
   bool _isLoading = false;
-  String? _loginError;
 
   @override
   void initState() {
@@ -142,8 +142,17 @@ class _LoginPageState extends State<LoginPage> {
                     SizedBox(height: 16),
                     _PasswordField(controller: _passwordController),
                     SizedBox(height: 40),
-                    _LoginButton(
+                    AppButton.primary(
+                      text: 'Login',
                       onPressed: isLoginEnabled ? _handleLogin : null,
+                      isLoading: _isLoading,
+                    ),
+                    SizedBox(height: 16),
+                    AppButton.primary(
+                      text: 'Sign up',
+                      onPressed: () {
+                        AppRouter.navigateTo(context, RouteNames.register);
+                      },
                     ),
                   ],
                 ),
@@ -189,6 +198,7 @@ class _EmailField extends StatelessWidget {
       onTapOutside: (event) => FocusScope.of(context).unfocus(),
       keyboardType: TextInputType.emailAddress,
       decoration: InputDecoration(
+        prefixIcon: const Icon(Icons.email_outlined),
         labelText: 'Email',
         errorText: errorText,
         border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
@@ -219,8 +229,10 @@ class _PasswordFieldState extends State<_PasswordField> {
           onChanged: (value) {
             setState(() {});
           },
+          autocorrect: false,
           decoration: InputDecoration(
             labelText: 'Password',
+            prefixIcon: const Icon(Icons.lock_outline),
             border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
             suffixIcon: IconButton(
               onPressed: () {
@@ -304,15 +316,5 @@ class _RequirementItem extends StatelessWidget {
         ),
       ],
     );
-  }
-}
-
-class _LoginButton extends StatelessWidget {
-  const _LoginButton({required this.onPressed});
-  final VoidCallback? onPressed;
-
-  @override
-  Widget build(BuildContext context) {
-    return ElevatedButton(onPressed: onPressed, child: Text('Login'));
   }
 }
