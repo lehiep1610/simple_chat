@@ -30,8 +30,6 @@ export const initDatabase = async () => {
             CREATE TABLE IF NOT EXISTS conversations(
                 id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
                 name VARCHAR(255),
-                is_group BOOLEAN DEFAULT FALSE,
-                direct_key VARCHAR(100) UNIQUE,
                 created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                 updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
             )
@@ -50,18 +48,27 @@ export const initDatabase = async () => {
             )
         `);
 
-        // create conversation participants table if not exists
+        // create conversation_participants
         await pool.query(`
             CREATE TABLE IF NOT EXISTS conversation_participants(
-            id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-            conversation_id UUID NOT NULL REFERENCES conversations(id) ON DELETE CASCADE,
-            user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
-            joined_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-            last_read_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-            last_read_message_id UUID REFERENCES messages(id) ON DELETE SET NULL,
-            UNIQUE(conversation_id, user_id)
+                id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+                conversation_id UUID NOT NULL REFERENCES conversations(id) ON DELETE CASCADE,
+                user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+                joined_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                UNIQUE(conversation_id, user_id)
             )
-        `);
+        `)
+
+        // create friend table
+        await pool.query(`
+            CREATE TABLE IF NOT EXISTS friendships(
+                user_low_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+                user_high_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                PRIMARY KEY (user_low_id, user_high_id),
+                CHECK (user_low_id < user_high_id)
+            )
+        `)
 
         // indexes
         await pool.query(`
