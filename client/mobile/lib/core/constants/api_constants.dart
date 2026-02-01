@@ -7,4 +7,7 @@ class ApiConstants {
 
   // Other endpoints
   static const String ping = '/ping';
+
+  // Friend
+  static const String getFriends = '/friends';
 }
