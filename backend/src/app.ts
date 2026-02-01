@@ -1,5 +1,6 @@
 import express from 'express';
 import authRoutes from './features/auth/presentation/routes/auth.routes';
+import friendshipRoutes from './features/auth/presentation/routes/friendship.routes';
 import { AppError } from './core/errors/app-error';
 
 const app = express();
@@ -9,6 +10,7 @@ app.use(express.json());
 
 // Routes
 app.use('/api/auth', authRoutes);
+app.use('/api/friends', friendshipRoutes)
 
 // Error handler
 app.use((err: Error, req: express.Request, res: express.Response, next: express.NextFunction) => {
