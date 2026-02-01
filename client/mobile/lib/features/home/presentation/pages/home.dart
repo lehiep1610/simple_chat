@@ -53,9 +53,69 @@ class _HomePageState extends State<HomePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Center(
-        child: Text('Home', style: Theme.of(context).textTheme.bodyLarge),
+      appBar: AppBar(
+        title: Text(
+          'Simple chat',
+          style: Theme.of(context).textTheme.headlineMedium,
+        ),
       ),
+      body: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 16),
+        child: Column(mainAxisAlignment: .start, children: [_listFriend()]),
+      ),
+    );
+  }
+
+  Widget _listFriend() {
+    return Expanded(
+      child: ListView.separated(
+        shrinkWrap: true,
+        itemBuilder: (context, index) => _friendWidget(_friends[0]),
+        separatorBuilder: (context, index) => SizedBox(width: 6),
+        scrollDirection: .horizontal,
+        itemCount: _friends.length,
+      ),
+    );
+  }
+
+  Widget _friendWidget(Friend friend) {
+    return Column(
+      children: [
+        CircleAvatar(
+          radius: 32,
+          backgroundColor: friend.avatarUrl != null
+              ? null
+              : Colors.grey.shade300,
+          child: friend.avatarUrl == null
+              ? Image.asset(
+                  'assets/images/default_avatar.png',
+                  width: 36,
+                  height: 36,
+                  fit: BoxFit.cover,
+                )
+              : ClipOval(
+                  clipBehavior: .hardEdge,
+                  child: Image.network(
+                    friend.avatarUrl!,
+                    errorBuilder: (context, error, stackTrace) => Image.asset(
+                      'assets/images/default_avatar.png',
+                      width: 36,
+                      height: 36,
+                      fit: BoxFit.cover,
+                    ),
+                  ),
+                ),
+        ),
+        SizedBox(
+          width: 64,
+          child: Text(
+            friend.name,
+            maxLines: 1,
+            overflow: .ellipsis,
+            textAlign: .center,
+          ),
+        ),
+      ],
     );
   }
 }
