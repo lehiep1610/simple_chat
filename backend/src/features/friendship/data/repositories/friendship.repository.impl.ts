@@ -1,6 +1,7 @@
+
+import { FriendshipDatasource } from "../../../friendship/data/datasources/friendship.datasource";
 import { Friend } from "../../domain/entities/friendship.entity";
 import { FriendshipRepository } from "../../domain/repositories/friendship.repository";
-import { FriendshipDatasource } from "../datasources/friendship.datasource";
 
 export class FriendshipRepositoryImpl implements FriendshipRepository {
     constructor(private friendshipDatasource: FriendshipDatasource) { }

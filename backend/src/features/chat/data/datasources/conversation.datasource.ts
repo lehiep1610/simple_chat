@@ -73,5 +73,15 @@ export class ConversationDatasource {
         }
     }
 
-
+    async findDirectConversation(userId1: string, userId2: string): Promise<string | null> {
+        const result = await pool.query(`
+        SELECT c.id
+        FROM conversation c
+        JOIN conversation_participants cp1 ON c.id = cp1.conersation_id AND cp1.user_id = $1
+        JOIN conversation_participants cp2 ON c.id = cp2.conversation_id AND cp2.user_id =$2
+        WHERE (SELECT COUNT(*) FROM conversation_participants WHERE conversation_id = c.id) = 2
+        LIMIT 1
+    `, [userId1, userId2])
+        return result.rows.length > 0 ? result.rows[0].id : null;
+    }
 }
