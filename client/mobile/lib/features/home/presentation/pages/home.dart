@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:simple_chat/core/di/service_locator.dart';
+import 'package:simple_chat/core/router/app_router.dart';
+import 'package:simple_chat/core/router/route_names.dart';
 import 'package:simple_chat/core/utils/error_handler.dart';
 import 'package:simple_chat/features/home/domain/entities/friend.dart';
 import 'package:simple_chat/features/home/domain/usecases/get_friends_usecase.dart';
@@ -81,30 +83,39 @@ class _HomePageState extends State<HomePage> {
   Widget _friendWidget(Friend friend) {
     return Column(
       children: [
-        CircleAvatar(
-          radius: 32,
-          backgroundColor: friend.avatarUrl != null
-              ? null
-              : Colors.grey.shade300,
-          child: friend.avatarUrl == null
-              ? Image.asset(
-                  'assets/images/default_avatar.png',
-                  width: 36,
-                  height: 36,
-                  fit: BoxFit.cover,
-                )
-              : ClipOval(
-                  clipBehavior: .hardEdge,
-                  child: Image.network(
-                    friend.avatarUrl!,
-                    errorBuilder: (context, error, stackTrace) => Image.asset(
-                      'assets/images/default_avatar.png',
-                      width: 36,
-                      height: 36,
-                      fit: BoxFit.cover,
+        GestureDetector(
+          onTap: () {
+            AppRouter.navigateTo(
+              context,
+              RouteNames.chat,
+              arguments: {'friendId': friend.id, 'friendName': friend.name},
+            );
+          },
+          child: CircleAvatar(
+            radius: 32,
+            backgroundColor: friend.avatarUrl != null
+                ? null
+                : Colors.grey.shade300,
+            child: friend.avatarUrl == null
+                ? Image.asset(
+                    'assets/images/default_avatar.png',
+                    width: 36,
+                    height: 36,
+                    fit: BoxFit.cover,
+                  )
+                : ClipOval(
+                    clipBehavior: .hardEdge,
+                    child: Image.network(
+                      friend.avatarUrl!,
+                      errorBuilder: (context, error, stackTrace) => Image.asset(
+                        'assets/images/default_avatar.png',
+                        width: 36,
+                        height: 36,
+                        fit: BoxFit.cover,
+                      ),
                     ),
                   ),
-                ),
+          ),
         ),
         SizedBox(
           width: 64,

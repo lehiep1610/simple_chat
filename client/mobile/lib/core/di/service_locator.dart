@@ -2,6 +2,10 @@ import 'package:get_it/get_it.dart';
 import 'package:simple_chat/features/auth/data/datasources/auth_remote_datasource.dart';
 import 'package:simple_chat/features/auth/data/repositories/auth_repository_impl.dart';
 import 'package:simple_chat/features/auth/domain/repositories/auth_repository.dart';
+import 'package:simple_chat/features/chat/data/datasources/chat_remote_datasource.dart';
+import 'package:simple_chat/features/chat/data/repositories/chat_repository_impl.dart';
+import 'package:simple_chat/features/chat/domain/repositories/chat_repository.dart';
+import 'package:simple_chat/features/chat/domain/usecases/get_direct_conversation.dart';
 import 'package:simple_chat/features/home/data/datasources/friend_remote_datasource.dart';
 import 'package:simple_chat/features/home/data/repositories/friend_repository_impl.dart';
 import 'package:simple_chat/features/home/domain/repositories/friend_repository.dart';
@@ -42,4 +46,16 @@ void setupServiceLocator() {
 
   // Usecases
   sl.registerLazySingleton(() => GetFriendsUsecase(sl()));
+
+  // === Chat Feature ===  // ADD THIS SECTION
+  // Datasources
+  sl.registerLazySingleton<ChatRemoteDatasource>(
+    () => ChatRemoteDatasourceImpl(apiClient: sl()),
+  );
+
+  // Repositories
+  sl.registerLazySingleton<ChatRepository>(() => ChatRepositoryImpl(sl()));
+
+  // Usecases
+  sl.registerLazySingleton(() => GetConversationUsecase(sl()));
 }
