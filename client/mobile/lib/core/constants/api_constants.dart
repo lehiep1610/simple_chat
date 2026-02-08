@@ -12,5 +12,5 @@ class ApiConstants {
   static const String getFriends = '/friends';
 
   // Chat
-  static const String conversations = '/conversations';
+  static const String conversations = '/chat/direct';
 }

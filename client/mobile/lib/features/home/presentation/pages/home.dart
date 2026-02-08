@@ -7,7 +7,8 @@ import 'package:simple_chat/features/home/domain/entities/friend.dart';
 import 'package:simple_chat/features/home/domain/usecases/get_friends_usecase.dart';
 
 class HomePage extends StatefulWidget {
-  const HomePage({super.key});
+  final String userId;
+  const HomePage({super.key, required this.userId});
 
   @override
   State<HomePage> createState() => _HomePageState();
@@ -72,7 +73,7 @@ class _HomePageState extends State<HomePage> {
     return Expanded(
       child: ListView.separated(
         shrinkWrap: true,
-        itemBuilder: (context, index) => _friendWidget(_friends[0]),
+        itemBuilder: (context, index) => _friendWidget(_friends[index]),
         separatorBuilder: (context, index) => SizedBox(width: 6),
         scrollDirection: .horizontal,
         itemCount: _friends.length,
@@ -88,7 +89,11 @@ class _HomePageState extends State<HomePage> {
             AppRouter.navigateTo(
               context,
               RouteNames.chat,
-              arguments: {'friendId': friend.id, 'friendName': friend.name},
+              arguments: {
+                'friendId': friend.id,
+                'friendName': friend.name,
+                'userId': widget.userId,
+              },
             );
           },
           child: CircleAvatar(

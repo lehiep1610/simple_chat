@@ -15,6 +15,6 @@ class ChatRemoteDatasourceImpl implements ChatRemoteDatasource {
     final response = await apiClient.get(
       '${ApiConstants.conversations}/$friendId',
     );
-    return ConversationModel.fromJson(response['data']);
+    return ConversationModel.fromJson(response);
   }
 }

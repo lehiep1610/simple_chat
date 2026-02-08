@@ -97,7 +97,11 @@ class _LoginPageState extends State<LoginPage> {
         onSuccess: (user) {
           SnackbarHelper.showSuccess(context, 'Login successful!');
           // Navigate to home page
-          AppRouter.navigateAndReplace(context, RouteNames.home);
+          AppRouter.navigateAndReplace(
+            context,
+            RouteNames.home,
+            arguments: {'userId': user.id},
+          );
         },
         onError: (failure) {
           ErrorHandler.handleFailure(context, failure);

@@ -9,8 +9,14 @@ import 'package:simple_chat/features/chat/presentation/widgets/message_input.dar
 class ChatPage extends StatefulWidget {
   final String friendId;
   final String friendName;
+  final String userId;
 
-  const ChatPage({super.key, required this.friendId, required this.friendName});
+  const ChatPage({
+    super.key,
+    required this.friendId,
+    required this.friendName,
+    required this.userId,
+  });
 
   @override
   State<ChatPage> createState() => _ChatPageState();
@@ -23,7 +29,6 @@ class _ChatPageState extends State<ChatPage> {
   Conversation? _conversation;
   bool _isLoading = false;
   String? _error;
-  String? _currentUserId;
 
   @override
   void initState() {
@@ -52,10 +57,6 @@ class _ChatPageState extends State<ChatPage> {
           setState(() {
             _conversation = conversation;
             _isLoading = false;
-            _currentUserId = conversation.participantIds.firstWhere(
-              (id) => id != widget.friendId,
-              orElse: () => '',
-            );
           });
         },
       );
@@ -114,7 +115,7 @@ class _ChatPageState extends State<ChatPage> {
       itemCount: _conversation!.messages.length,
       itemBuilder: (context, index) {
         final message = _conversation!.messages[index];
-        final isMe = message.senderId == _currentUserId;
+        final isMe = message.senderId == widget.userId;
         return MessageBubble(message: message, isMe: isMe);
       },
     );
