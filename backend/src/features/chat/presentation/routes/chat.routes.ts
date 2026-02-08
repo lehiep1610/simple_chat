@@ -8,6 +8,7 @@ import { GetMessageUsecase } from "../../domain/usecases/get-message.usecase";
 import { SendMessageUsecase } from "../../domain/usecases/send-message.usecase";
 import { ChatController } from "../controllers/chat.controller";
 import { authMiddleware } from "../../../../core/middlewares/auth";
+import { GetDirectConversationUsecase } from "../../domain/usecases/get-direct-conversation.usecase";
 
 // Datasource
 const messageDatasource = new MessageDataSource;
@@ -21,9 +22,10 @@ const conversationRepository = new ConversationRepositoryImpl(conversationDataso
 const sendMessageUsecase = new SendMessageUsecase(messageRepository, conversationRepository);
 const getMessageUsecase = new GetMessageUsecase(messageRepository);
 const getConversationUsecase = new GetConversationUsecase(conversationRepository);
+const getDirectConversationUsecase = new GetDirectConversationUsecase(conversationRepository, messageRepository);
 
 // Controller
-const chatController = new ChatController(sendMessageUsecase, getMessageUsecase, getConversationUsecase);
+const chatController = new ChatController(sendMessageUsecase, getMessageUsecase, getConversationUsecase, getDirectConversationUsecase);
 
 const router = Router();
 
@@ -33,6 +35,7 @@ router.use(authMiddleware);
 router.post('/messages', chatController.sendMessage);
 router.get('/conversations', chatController.getConversation);
 router.get('conversations/:conversationId/messages', chatController.getMessages);
+router.get('/direct/:recipientId', chatController.getDirectConversation);
 
 export default router;
 
