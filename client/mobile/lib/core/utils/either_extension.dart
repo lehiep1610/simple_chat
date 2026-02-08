@@ -1,5 +1,5 @@
-import 'package:dartz/dartz.dart';
 import 'package:flutter/material.dart';
+import 'package:fpdart/fpdart.dart';
 import '../errors/failures.dart';
 import 'error_handler.dart';
 import 'snackbar_helper.dart';

@@ -1,4 +1,4 @@
-import 'package:dartz/dartz.dart';
+import 'package:fpdart/fpdart.dart';
 import 'package:simple_chat/core/errors/failures.dart';
 import 'package:simple_chat/features/home/domain/entities/friend.dart';
 import 'package:simple_chat/features/home/domain/repositories/friend_repository.dart';

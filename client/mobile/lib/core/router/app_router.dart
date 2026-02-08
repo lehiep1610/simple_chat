@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:simple_chat/features/auth/presentation/pages/signup.dart';
+import 'package:simple_chat/features/chat/presentation/pages/chat_page.dart';
 import 'package:simple_chat/features/home/presentation/pages/home.dart';
 import '../../features/auth/presentation/pages/login.dart';
 import '../theme/theme_provider.dart';
@@ -18,6 +19,15 @@ class AppRouter {
         return _buildRoute(HomePage(), settings);
       case RouteNames.register:
         return _buildRoute(SignUpPage(), settings);
+      case RouteNames.chat: // ADD THIS CASE
+        final args = settings.arguments as Map<String, dynamic>;
+        return _buildRoute(
+          ChatPage(
+            friendId: args['friendId'] as String,
+            friendName: args['friendName'] as String,
+          ),
+          settings,
+        );
       default:
         return _buildRoute(LoginPage(themeProvider: themeProvider), settings);
     }
