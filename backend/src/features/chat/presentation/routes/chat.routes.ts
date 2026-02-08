@@ -34,7 +34,7 @@ router.use(authMiddleware);
 // Routes
 router.post('/messages', chatController.sendMessage);
 router.get('/conversations', chatController.getConversation);
-router.get('conversations/:conversationId/messages', chatController.getMessages);
+router.get('/conversations/:conversationId/messages', chatController.getMessages);
 router.get('/direct/:recipientId', chatController.getDirectConversation);
 
 export default router;

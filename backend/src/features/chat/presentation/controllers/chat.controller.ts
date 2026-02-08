@@ -63,6 +63,7 @@ export class ChatController {
             }
 
             const result = await this.getDirectConversationUsecase.execute({ userId, recipientId, limit, offset });
+            res.json(result);
         } catch (e) {
 
         }

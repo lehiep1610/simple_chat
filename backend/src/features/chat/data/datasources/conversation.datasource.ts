@@ -22,7 +22,7 @@ export class ConversationDatasource {
     async findById(conversationId: string): Promise<Conversation | null> {
         const result = await pool.query(`
             SELECT c.id, c.name, c.created_at, c.updated_at
-            FROM conversation WHERE c.id = $1
+            FROM conversations c WHERE c.id = $1
             `, [conversationId]);
         if (result.rows.length === 0) return null;
         const row = result.rows[0];
@@ -42,7 +42,7 @@ export class ConversationDatasource {
             // create conversation
             const convResult = await client.query(`
             INSERT INTO conversations (name)
-            VALUE ($1)
+            VALUES ($1)
             RETURNING id, name, created_at, updated_at
             `, [params.name || null])
 
@@ -52,7 +52,7 @@ export class ConversationDatasource {
             for (const participantId of params.participants) {
                 await client.query(`
                     INSERT INTO conversation_participants(conversation_id, user_id)
-                    VALUE($1, $2)
+                    VALUES($1, $2)
                     `, [conversation.id, participantId])
             }
 
@@ -76,8 +76,8 @@ export class ConversationDatasource {
     async findDirectConversation(userId1: string, userId2: string): Promise<string | null> {
         const result = await pool.query(`
         SELECT c.id
-        FROM conversation c
-        JOIN conversation_participants cp1 ON c.id = cp1.conersation_id AND cp1.user_id = $1
+        FROM conversations c
+        JOIN conversation_participants cp1 ON c.id = cp1.conversation_id AND cp1.user_id = $1
         JOIN conversation_participants cp2 ON c.id = cp2.conversation_id AND cp2.user_id =$2
         WHERE (SELECT COUNT(*) FROM conversation_participants WHERE conversation_id = c.id) = 2
         LIMIT 1
