@@ -1,4 +1,4 @@
-import { BadRequestError } from "../../../../core/errors/app-error";
+import { BadRequestError, NotFoundError } from "../../../../core/errors/app-error";
 import { Message } from "../entities/message.entity";
 import { ConversationRepository } from "../repositories/conversation.repository";
 import { MessageRepository } from "../repositories/message.repository";
@@ -10,28 +10,22 @@ export class SendMessageUsecase {
     ) { }
 
     async execute(params: {
+        conversationId: string;
         senderId: string;
-        recipientId: string;
         body: string;
         messageType?: 'text' | 'image' | 'file'
     }): Promise<Message> {
-        const { senderId, recipientId, body, messageType = 'text' } = params;
+        const { conversationId, senderId, body, messageType = 'text' } = params;
 
         // Validate
         if (!body || body.trim().length === 0) {
             throw new BadRequestError('Message body cannot be empty');
         }
 
-        if (senderId === recipientId) {
-            throw new BadRequestError('Cannot send message to yourself');
-        }
-
-        // Business logic
-        let conversationId = await this.conversationRepository.findDirectConversation(senderId, recipientId);
-
-        if (!conversationId) {
-            const conversation = await this.conversationRepository.create({ participants: [senderId, recipientId] });
-            conversationId = conversation.id;
+        // Validate conversation exists
+        const conversation = await this.conversationRepository.findById(conversationId);
+        if (!conversation) {
+            throw new NotFoundError('Conversation not found');
         }
 
         // Create message
