@@ -16,15 +16,20 @@ class AppRouter {
       case RouteNames.login:
         return _buildRoute(LoginPage(themeProvider: themeProvider), settings);
       case RouteNames.home:
-        return _buildRoute(HomePage(), settings);
+        final args = settings.arguments as Map<String, dynamic>;
+        return _buildRoute(
+          HomePage(userId: args['userId'] as String),
+          settings,
+        );
       case RouteNames.register:
         return _buildRoute(SignUpPage(), settings);
-      case RouteNames.chat: // ADD THIS CASE
+      case RouteNames.chat:
         final args = settings.arguments as Map<String, dynamic>;
         return _buildRoute(
           ChatPage(
             friendId: args['friendId'] as String,
             friendName: args['friendName'] as String,
+            userId: args['userId'] as String,
           ),
           settings,
         );
