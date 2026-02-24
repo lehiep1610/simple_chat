@@ -2,7 +2,7 @@ class Message {
   final String id;
   final String conversationId;
   final String senderId;
-  final String senderName;
+  final String? senderName;
   final String body;
   final String messageType;
   final DateTime createdAt;
