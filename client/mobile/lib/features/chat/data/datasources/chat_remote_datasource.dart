@@ -41,6 +41,6 @@ class ChatRemoteDatasourceImpl implements ChatRemoteDatasource {
         'messageType': messageType,
       },
     );
-    return MessageModel.fromJson(response);
+    return MessageModel.fromJson(response['message'] as Map<String, dynamic>);
   }
 }
