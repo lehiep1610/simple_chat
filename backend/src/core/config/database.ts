@@ -20,8 +20,8 @@ export const initDatabase = async () => {
                 hashed_password VARCHAR(255) NOT NULL,
                 name VARCHAR(255) NOT NULL,
                 avatar_url VARCHAR(500),
-                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-                updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+                created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+                updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
             )
         `);
 
@@ -30,8 +30,8 @@ export const initDatabase = async () => {
             CREATE TABLE IF NOT EXISTS conversations(
                 id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
                 name VARCHAR(255),
-                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-                updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+                created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+                updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
             )
         `);
 
@@ -43,8 +43,8 @@ export const initDatabase = async () => {
                 sender_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
                 body TEXT NOT NULL,
                 message_type VARCHAR(50) DEFAULT 'text',
-                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-                updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+                created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+                updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
             )
         `);
 
@@ -54,7 +54,7 @@ export const initDatabase = async () => {
                 id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
                 conversation_id UUID NOT NULL REFERENCES conversations(id) ON DELETE CASCADE,
                 user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
-                joined_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                joined_at TTIMESTAMPTZ NOT NULL DEFAULT NOW(),
                 UNIQUE(conversation_id, user_id)
             )
         `)
@@ -64,7 +64,7 @@ export const initDatabase = async () => {
             CREATE TABLE IF NOT EXISTS friendships(
                 user_low_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
                 user_high_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
-                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
                 PRIMARY KEY (user_low_id, user_high_id),
                 CHECK (user_low_id < user_high_id)
             )
