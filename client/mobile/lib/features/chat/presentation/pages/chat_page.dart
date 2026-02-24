@@ -42,7 +42,9 @@ class _ChatPageState extends State<ChatPage> {
       _error = null;
     });
 
-    final result = await _getConversationUsecase.call(widget.friendId);
+    final result = await _getConversationUsecase.getDirectConversation(
+      widget.friendId,
+    );
 
     if (mounted) {
       result.fold(
@@ -63,11 +65,29 @@ class _ChatPageState extends State<ChatPage> {
     }
   }
 
-  void _handleSendMessage(String content) {
-    // TODO: Implement send message functionality
-    ScaffoldMessenger.of(
-      context,
-    ).showSnackBar(SnackBar(content: Text('Send message: $content')));
+  Future<void> _handleSendMessage(String content) async {
+    final result = await _getConversationUsecase.sendMessage(
+      conversationId: _conversation!.id,
+      senderId: widget.userId,
+      body: content,
+    );
+    if (mounted) {
+      result.fold(
+        (failure) {
+          setState(() {
+            _error = failure.message;
+            _isLoading = false;
+          });
+          ErrorHandler.handleFailure(context, failure);
+        },
+        (message) {
+          setState(() {
+            _conversation!.messages.add(message);
+            _isLoading = false;
+          });
+        },
+      );
+    }
   }
 
   @override

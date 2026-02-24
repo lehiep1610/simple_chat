@@ -5,8 +5,11 @@ class MessageModel extends Message {
     required super.id,
     required super.conversationId,
     required super.senderId,
-    required super.content,
+    required super.senderName,
+    required super.body,
+    required super.messageType,
     required super.createdAt,
+    required super.updatedAt,
   });
 
   factory MessageModel.fromJson(Map<String, dynamic> json) {
@@ -14,8 +17,11 @@ class MessageModel extends Message {
       id: json['id'] as String,
       conversationId: json['conversationId'] as String,
       senderId: json['senderId'] as String,
-      content: json['content'] as String,
+      senderName: json['senderName'] as String,
+      body: json['body'] as String,
+      messageType: json['messageType'] as String,
       createdAt: DateTime.parse(json['createdAt'] as String),
+      updatedAt: DateTime.parse(json['updatedAt'] as String),
     );
   }
 
@@ -24,8 +30,11 @@ class MessageModel extends Message {
       'id': id,
       'conversationId': conversationId,
       'senderId': senderId,
-      'content': content,
+      'senderName': senderName,
+      'body': body,
+      'messageType': messageType,
       'createdAt': createdAt.toIso8601String(),
+      'updatedAt': updatedAt.toIso8601String(),
     };
   }
 }
