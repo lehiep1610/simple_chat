@@ -9,6 +9,9 @@ import { SendMessageUsecase } from "../../domain/usecases/send-message.usecase";
 import { ChatController } from "../controllers/chat.controller";
 import { authMiddleware } from "../../../../core/middlewares/auth";
 import { GetDirectConversationUsecase } from "../../domain/usecases/get-direct-conversation.usecase";
+import { Server } from "socket.io";
+import { socketAuthMiddleware } from "../../../../core/middlewares/socket-auth";
+import { ChatSocketHandler } from "../sockets/chat.socket.handler";
 
 // Datasource
 const messageDatasource = new MessageDataSource;
@@ -38,4 +41,11 @@ router.get('/conversations/:conversationId/messages', chatController.getMessages
 router.get('/direct/:recipientId', chatController.getDirectConversation);
 
 export default router;
+
+// Socket Setup
+export const setupChatSocket = (io: Server) => {
+    const chatNamespace = io.of('/chat');
+    chatNamespace.use(socketAuthMiddleware);
+    new ChatSocketHandler(io.of('/chat'), sendMessageUsecase);
+}
 
