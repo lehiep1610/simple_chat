@@ -18,7 +18,7 @@ export class GetDirectConversationUsecase {
         let conversationId = await this.conversationRepository.findDirectConversation(userId, recipientId);
 
         if (!conversationId) {
-            const conversation = await this.conversationRepository.create({ participants: [userId, recipientId] });
+            const conversation = await this.conversationRepository.create({ participants: [userId, recipientId], creatorId: userId });
             conversationId = conversation.id;
         }
 

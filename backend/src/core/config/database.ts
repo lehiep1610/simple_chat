@@ -30,6 +30,9 @@ export const initDatabase = async () => {
             CREATE TABLE IF NOT EXISTS conversations(
                 id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
                 name VARCHAR(255),
+                last_message TEXT,
+                last_message_at TIMESTAMPTZ,
+                avatar_url VARCHAR(500),
                 created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
                 updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
             )
