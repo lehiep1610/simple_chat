@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:simple_chat/core/di/service_locator.dart';
+import 'package:simple_chat/core/network/socket_service.dart';
 import 'package:simple_chat/core/utils/error_handler.dart';
 import 'package:simple_chat/features/chat/domain/entities/conversation.dart';
 import 'package:simple_chat/features/chat/domain/usecases/get_direct_conversation.dart';
@@ -25,6 +26,7 @@ class ChatPage extends StatefulWidget {
 class _ChatPageState extends State<ChatPage> {
   final GetConversationUsecase _getConversationUsecase =
       sl<GetConversationUsecase>();
+  late SocketService _socketService;
 
   Conversation? _conversation;
   bool _isLoading = false;
@@ -33,7 +35,40 @@ class _ChatPageState extends State<ChatPage> {
   @override
   void initState() {
     super.initState();
-    _loadConversation();
+    _socketService = sl<SocketService>();
+    _initializeChat();
+  }
+
+  Future<void> _initializeChat() async {
+    await _socketService.connect();
+    await _loadConversation();
+    if (_conversation != null) {
+      _listenToNewMessages();
+    }
+  }
+
+  void _listenToNewMessages() {
+    _socketService.onNewMessage((message) {
+      if (mounted) {
+        setState(() {
+          // dedupe
+          final isDuplicate = _conversation!.messages.any(
+            (m) => m.id == message.id,
+          );
+          if (!isDuplicate) {
+            _conversation!.messages.add(message);
+          }
+        });
+      }
+    });
+
+    _socketService.onMessageError((errorMessage) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(errorMessage), backgroundColor: Colors.red),
+        );
+      }
+    });
   }
 
   Future<void> _loadConversation() async {
@@ -66,26 +101,20 @@ class _ChatPageState extends State<ChatPage> {
   }
 
   Future<void> _handleSendMessage(String content) async {
-    final result = await _getConversationUsecase.sendMessage(
-      conversationId: _conversation!.id,
-      senderId: widget.userId,
-      body: content,
-    );
-    if (mounted) {
-      result.fold(
-        (failure) {
-          setState(() {
-            _error = failure.message;
-            _isLoading = false;
-          });
-          ErrorHandler.handleFailure(context, failure);
-        },
-        (message) {
-          setState(() {
-            _conversation!.messages.add(message);
-            _isLoading = false;
-          });
-        },
+    if (_conversation == null || content.trim().isEmpty) return;
+
+    if (_socketService.isConnected()) {
+      _socketService.sendMessage(
+        conversationId: _conversation!.id,
+        body: content.trim(),
+        messageType: 'text',
+      );
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Socket not connected'),
+          backgroundColor: Colors.red,
+        ),
       );
     }
   }
@@ -139,5 +168,12 @@ class _ChatPageState extends State<ChatPage> {
         return MessageBubble(message: message, isMe: isMe);
       },
     );
+  }
+
+  @override
+  void dispose() {
+    _socketService.removeAllListeners();
+    _socketService.disconnect();
+    super.dispose();
   }
 }

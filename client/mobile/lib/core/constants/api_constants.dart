@@ -12,6 +12,7 @@ class ApiConstants {
   static const String getFriends = '/friends';
 
   // Chat
-  static const String conversations = '/chat/direct';
+  static const String conversations = '/chat/conversations';
+  static const String directConversation = '/chat/direct';
   static const String messages = '/chat/messages';
 }

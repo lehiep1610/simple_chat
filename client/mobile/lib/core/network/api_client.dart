@@ -2,23 +2,22 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:http/http.dart' as http;
+import 'package:simple_chat/core/session/auth_session_manager.dart';
 
 import '../constants/api_constants.dart';
 import '../errors/exceptions.dart';
 
 class ApiClient {
   final http.Client _client;
-  String? _authToken;
+  final AuthSessionManager _authSessionManager;
 
-  ApiClient({http.Client? client}) : _client = client ?? http.Client();
+  String? get _authToken => _authSessionManager.authToken;
 
-  void setAuthToken(String token) {
-    _authToken = token;
-  }
-
-  void clearAuthToken() {
-    _authToken = null;
-  }
+  ApiClient({
+    http.Client? client,
+    required AuthSessionManager authSessionManager,
+  }) : _client = client ?? http.Client(),
+       _authSessionManager = authSessionManager;
 
   Map<String, String> get _headers => {
     'Content-Type': 'application/json',
