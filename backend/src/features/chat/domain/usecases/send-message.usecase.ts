@@ -29,8 +29,13 @@ export class SendMessageUsecase {
         }
 
         // Create message
-        return this.messageRepository.create({
+        const message = await this.messageRepository.create({
             conversationId, senderId, body: body.trim(), messageType: messageType
         });
+
+        // Update last message
+        await this.conversationRepository.updateLastMessage(conversationId, body.trim());
+
+        return message;
     }
 }

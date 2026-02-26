@@ -10,10 +10,13 @@ export class ConversationRepositoryImpl implements ConversationRepository {
     findById(conversationId: string): Promise<Conversation | null> {
         return this.conversationDatasource.findById(conversationId);
     }
-    create(params: { name?: string, participants: string[] }): Promise<Conversation> {
+    create(params: { name?: string, creatorId: string, participants: string[] }): Promise<Conversation> {
         return this.conversationDatasource.create(params);
     }
     findDirectConversation(userId1: string, userId2: string): Promise<string | null> {
         return this.conversationDatasource.findDirectConversation(userId1, userId2);
+    }
+    updateLastMessage(conversationId: string, body: string): Promise<void> {
+        return this.conversationDatasource.updateLastMessage(conversationId, body);
     }
 }

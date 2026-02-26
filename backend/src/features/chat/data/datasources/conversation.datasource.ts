@@ -4,16 +4,19 @@ import { Conversation } from "../../domain/entities/conversation.entity";
 export class ConversationDatasource {
     async findByUserId(userId: string): Promise<Conversation[]> {
         const result = await pool.query(`
-            SELECT c.id, c.name, c.created_at, c.updated_at
+            SELECT c.id, c.name, c.last_message, c.last_message_at, c.avatar_url, c.created_at, c.updated_at
             FROM conversations c
             INNER JOIN conversation_participants cp ON c.id = cp.conversation_id
             WHERE cp.user_id = $1
-            ORDER BY c.updated_at DESC
+            ORDER BY COALESCE(c.last_message_at, c.updated_at) DESC
             `, [userId]);
-
+        if (result.rows.length === 0) return [];
         return result.rows.map(row => ({
             id: row.id,
             name: row.name,
+            lastMessage: row.last_message,
+            lastMessageAt: row.last_message_at,
+            avatarUrl: row.avatar_url,
             createdAt: row.created_at,
             updatedAt: row.updated_at,
         }));
@@ -21,7 +24,7 @@ export class ConversationDatasource {
 
     async findById(conversationId: string): Promise<Conversation | null> {
         const result = await pool.query(`
-            SELECT c.id, c.name, c.created_at, c.updated_at
+            SELECT c.id, c.name, c.created_at, c.updated_at, c.avatar_url, c.last_message, c.last_message_at
             FROM conversations c WHERE c.id = $1
             `, [conversationId]);
         if (result.rows.length === 0) return null;
@@ -29,23 +32,42 @@ export class ConversationDatasource {
         return {
             id: row.id,
             name: row.name,
+            lastMessage: row.last_message,
+            lastMessageAt: row.last_message_at,
+            avatarUrl: row.avatar_url,
             createdAt: row.created_at,
             updatedAt: row.updated_at,
         }
     }
 
-    async create(params: { name?: string, participants: string[] }): Promise<Conversation> {
+    async create(params: { name?: string, creatorId: string, participants: string[] }): Promise<Conversation> {
         const client = await pool.connect();
         try {
             await client.query(`BEGIN`);
 
+            let conversationName: string | null = params.name ?? null;
+            let conversationAvatarUrl: string | null = null;
+
+            // DM (Direct Message) conversation
+            if (!conversationName && params.participants.length === 2) {
+                const otherUserId = params.participants.find(id => id !== params.creatorId);
+                if (otherUserId) {
+                    const otherUser = await client.query(`
+                        SELECT name, avatar_url FROM users WHERE id = $1
+                        `, [otherUserId]);
+                    if (otherUser.rows.length > 0) {
+                        conversationName = otherUser.rows[0].name;
+                        conversationAvatarUrl = otherUser.rows[0].avatar_url;
+                    }
+                }
+            }
+
             // create conversation
             const convResult = await client.query(`
-            INSERT INTO conversations (name)
-            VALUES ($1)
-            RETURNING id, name, created_at, updated_at
-            `, [params.name || null])
-
+                INSERT INTO conversations (name, avatar_url)
+                VALUES ($1, $2)
+                RETURNING id, name, last_message, last_message_at, avatar_url, created_at, updated_at
+                `, [conversationName, conversationAvatarUrl]);
             const conversation = convResult.rows[0];
 
             // add participants
@@ -61,6 +83,9 @@ export class ConversationDatasource {
             return {
                 id: conversation.id,
                 name: conversation.name,
+                lastMessage: conversation.last_message,
+                lastMessageAt: conversation.last_message_at,
+                avatarUrl: conversation.avatar_url,
                 createdAt: conversation.created_at,
                 updatedAt: conversation.updated_at,
 
@@ -83,5 +108,13 @@ export class ConversationDatasource {
         LIMIT 1
     `, [userId1, userId2])
         return result.rows.length > 0 ? result.rows[0].id : null;
+    }
+
+    async updateLastMessage(conversationId: string, body: string): Promise<void> {
+        await pool.query(`
+            UPDATE conversations 
+            SET last_message = $1, last_message_at = NOW(), updated_at = NOW()
+            WHERE id = $2
+            `, [body.length > 100 ? body.substring(0, 100) + '...' : body, conversationId])
     }
 }
