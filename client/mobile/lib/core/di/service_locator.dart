@@ -1,4 +1,6 @@
 import 'package:get_it/get_it.dart';
+import 'package:simple_chat/core/network/socket_service.dart';
+import 'package:simple_chat/core/session/auth_session_manager.dart';
 import 'package:simple_chat/features/auth/data/datasources/auth_remote_datasource.dart';
 import 'package:simple_chat/features/auth/data/repositories/auth_repository_impl.dart';
 import 'package:simple_chat/features/auth/domain/repositories/auth_repository.dart';
@@ -18,12 +20,17 @@ final sl = GetIt.instance;
 
 void setupServiceLocator() {
   // Core
-  sl.registerLazySingleton<ApiClient>(() => ApiClient());
+  sl.registerLazySingleton<AuthSessionManager>(
+    () => AuthSessionManager.instance,
+  );
+  sl.registerLazySingleton<ApiClient>(
+    () => ApiClient(authSessionManager: sl()),
+  );
 
   // === Auth Feature ===
   //Datasources
   sl.registerLazySingleton<AuthRemoteDataSource>(
-    () => AuthRemoteDataSourceImpl(apiClient: sl()),
+    () => AuthRemoteDataSourceImpl(apiClient: sl(), authSessionManager: sl()),
   );
 
   //Repositories
@@ -58,4 +65,8 @@ void setupServiceLocator() {
 
   // Usecases
   sl.registerLazySingleton(() => GetConversationUsecase(sl()));
+
+  sl.registerLazySingleton<SocketService>(
+    () => SocketService(authSessionManager: sl()),
+  );
 }

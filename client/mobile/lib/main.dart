@@ -3,12 +3,16 @@ import 'package:simple_chat/core/di/service_locator.dart';
 import 'package:simple_chat/core/router/app_router.dart';
 import 'package:simple_chat/core/router/route_names.dart';
 import 'package:simple_chat/core/router/route_observer.dart';
+import 'package:simple_chat/core/session/auth_session_manager.dart';
 import 'package:simple_chat/core/theme/app_theme.dart';
 import 'package:simple_chat/core/theme/theme_provider.dart';
 import 'package:simple_chat/features/auth/presentation/pages/login.dart';
 
-void main() {
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await AuthSessionManager.instance.initialize();
   setupServiceLocator();
+
   runApp(const MainApp());
 }
 

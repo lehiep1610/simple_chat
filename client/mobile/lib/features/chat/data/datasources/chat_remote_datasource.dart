@@ -5,6 +5,7 @@ import 'package:simple_chat/features/chat/data/models/message_model.dart';
 
 abstract class ChatRemoteDatasource {
   Future<ConversationModel> getDirectConversation(String friendId);
+  Future<List<ConversationModel>> getConversations();
   Future<MessageModel> sendMessage({
     required String conversationId,
     required String senderId,
@@ -23,6 +24,13 @@ class ChatRemoteDatasourceImpl implements ChatRemoteDatasource {
       '${ApiConstants.conversations}/$friendId',
     );
     return ConversationModel.fromJson(response);
+  }
+
+  @override
+  Future<List<ConversationModel>> getConversations() async {
+    final response = await apiClient.get(ApiConstants.conversations);
+    final List<dynamic> data = response['data'] as List<dynamic>;
+    return data.map((json) => ConversationModel.fromJson(json)).toList();
   }
 
   @override

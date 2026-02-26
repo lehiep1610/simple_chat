@@ -1,3 +1,5 @@
+import 'package:simple_chat/core/session/auth_session_manager.dart';
+
 import '../../../../core/constants/api_constants.dart';
 import '../../../../core/network/api_client.dart';
 import '../models/user_model.dart';
@@ -14,8 +16,12 @@ abstract class AuthRemoteDataSource {
 
 class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
   final ApiClient apiClient;
+  final AuthSessionManager authSessionManager;
 
-  AuthRemoteDataSourceImpl({required this.apiClient});
+  AuthRemoteDataSourceImpl({
+    required this.apiClient,
+    required this.authSessionManager,
+  });
 
   @override
   Future<UserModel> login({
@@ -29,7 +35,10 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
 
     // Save token if returned
     if (response['token'] != null) {
-      apiClient.setAuthToken(response['token']);
+      await authSessionManager.setSesstion(
+        authToken: response['token'],
+        userId: response['user']['id'],
+      );
     }
 
     return UserModel.fromJson(response['user']);
@@ -50,6 +59,6 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
 
   @override
   Future<void> logout() async {
-    apiClient.clearAuthToken();
+    await authSessionManager.clearSession();
   }
 }
