@@ -21,7 +21,7 @@ export class MessageDataSource {
         }
     }
 
-    async findByConversationId(conversationId: string, limit: 50, offset: 0): Promise<Message[]> {
+    async findByConversationId(conversationId: string, limit: number = 50, offset: number = 0): Promise<Message[]> {
         const result = await pool.query(`
             SELECT m.id, m.conversation_id, m.sender_id, m.body, m.message_type, 
                 m.created_at, m.updated_at, u.name as sender_name
