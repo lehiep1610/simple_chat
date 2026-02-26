@@ -55,17 +55,16 @@ export class ChatController {
         try {
             const userId = req.userId!;
             const recipientId = req.params.recipientId as string;
-            const limit = parseInt(req.query.limit as string) || 50;
-            const offset = parseInt(req.query.offset as string) || 0;
+
 
             if (!recipientId) {
                 return res.status(400).json({ message: `recipientId is required` });
             }
 
-            const result = await this.getDirectConversationUsecase.execute({ userId, recipientId, limit, offset });
-            res.json(result);
+            const conversationId = await this.getDirectConversationUsecase.execute({ userId, recipientId });
+            res.json({ conversationId });
         } catch (e) {
-
+            next(e)
         }
     }
 }

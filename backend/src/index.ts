@@ -20,7 +20,7 @@ const start = async () => {
 
     setupChatSocket(io);
 
-    app.listen(PORT, () => {
+    httpServer.listen(PORT, () => {
         console.log(`🚀 Server running at http://localhost:${PORT}`);
     });
 };

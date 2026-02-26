@@ -25,7 +25,7 @@ const conversationRepository = new ConversationRepositoryImpl(conversationDataso
 const sendMessageUsecase = new SendMessageUsecase(messageRepository, conversationRepository);
 const getMessageUsecase = new GetMessageUsecase(messageRepository);
 const getConversationUsecase = new GetConversationUsecase(conversationRepository);
-const getDirectConversationUsecase = new GetDirectConversationUsecase(conversationRepository, messageRepository);
+const getDirectConversationUsecase = new GetDirectConversationUsecase(conversationRepository);
 
 // Controller
 const chatController = new ChatController(sendMessageUsecase, getMessageUsecase, getConversationUsecase, getDirectConversationUsecase);
