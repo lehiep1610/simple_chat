@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:simple_chat/features/auth/presentation/pages/signup.dart';
-import 'package:simple_chat/features/chat/presentation/pages/chat_page.dart';
+import 'package:simple_chat/features/chats/presentation/pages/inbox.dart';
+import 'package:simple_chat/features/chats/presentation/pages/thread.dart';
 import 'package:simple_chat/features/home/presentation/pages/home.dart';
 import '../../features/auth/presentation/pages/login.dart';
 import '../theme/theme_provider.dart';
@@ -16,17 +17,16 @@ class AppRouter {
       case RouteNames.login:
         return _buildRoute(LoginPage(themeProvider: themeProvider), settings);
       case RouteNames.home:
-        final args = settings.arguments as Map<String, dynamic>;
-        return _buildRoute(
-          HomePage(userId: args['userId'] as String),
-          settings,
-        );
+        return _buildRoute(Home(), settings);
       case RouteNames.register:
         return _buildRoute(SignUpPage(), settings);
+      case RouteNames.inbox:
+        final args = settings.arguments as Map<String, dynamic>;
+        return _buildRoute(Inbox(userId: args['userId'] as String), settings);
       case RouteNames.chat:
         final args = settings.arguments as Map<String, dynamic>;
         return _buildRoute(
-          ChatPage(
+          Thread(
             friendId: args['friendId'] as String,
             friendName: args['friendName'] as String,
             userId: args['userId'] as String,

@@ -1,6 +1,6 @@
 import 'package:simple_chat/core/constants/api_constants.dart';
 import 'package:simple_chat/core/session/auth_session_manager.dart';
-import 'package:simple_chat/features/chat/data/models/message_model.dart';
+import 'package:simple_chat/features/chats/data/models/message_model.dart';
 import 'package:socket_io_client/socket_io_client.dart' as IO;
 
 class SocketService {
@@ -15,7 +15,7 @@ class SocketService {
 
   Future<void> connect() async {
     final token = _authSessionManager.authToken;
-    if (_socket?.connect == true) {
+    if (_socket?.connected == true) {
       print('Socket already connected');
       return;
     }
