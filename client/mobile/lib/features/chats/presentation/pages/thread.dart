@@ -92,6 +92,7 @@ class _ThreadState extends State<Thread> {
         (conversationId) => _conversationId = conversationId,
       );
     }
+    _socketService.joinConversation(_conversationId);
 
     final result = await _getMessagesUsecase.getMessages(_conversationId);
 
