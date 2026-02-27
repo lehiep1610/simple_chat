@@ -16,8 +16,8 @@ export class ChatSocketHandler {
     private setupHandlers() {
         this.chatNamespace.on('connection', (socket: SocketWithAuth) => {
             console.log(`User connected: ${socket.userId}`);
-
             this.handleSendMessage(socket);
+            this.handleJoinConversation(socket);
             this.handleDisconnect(socket);
         });
     }
@@ -43,6 +43,12 @@ export class ChatSocketHandler {
                     message: error instanceof Error ? error.message : 'Failed to send message'
                 });
             }
+        });
+    }
+
+    private handleJoinConversation(socket: SocketWithAuth) {
+        socket.on('join:conversation', (conversationId: string) => {
+            socket.join(conversationId);
         });
     }
 
