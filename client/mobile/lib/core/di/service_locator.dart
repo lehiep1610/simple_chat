@@ -4,14 +4,16 @@ import 'package:simple_chat/core/session/auth_session_manager.dart';
 import 'package:simple_chat/features/auth/data/datasources/auth_remote_datasource.dart';
 import 'package:simple_chat/features/auth/data/repositories/auth_repository_impl.dart';
 import 'package:simple_chat/features/auth/domain/repositories/auth_repository.dart';
-import 'package:simple_chat/features/chat/data/datasources/chat_remote_datasource.dart';
-import 'package:simple_chat/features/chat/data/repositories/chat_repository_impl.dart';
-import 'package:simple_chat/features/chat/domain/repositories/chat_repository.dart';
-import 'package:simple_chat/features/chat/domain/usecases/get_direct_conversation.dart';
-import 'package:simple_chat/features/home/data/datasources/friend_remote_datasource.dart';
-import 'package:simple_chat/features/home/data/repositories/friend_repository_impl.dart';
-import 'package:simple_chat/features/home/domain/repositories/friend_repository.dart';
-import 'package:simple_chat/features/home/domain/usecases/get_friends_usecase.dart';
+import 'package:simple_chat/features/chats/data/datasources/chat_remote_datasource.dart';
+import 'package:simple_chat/features/chats/data/repositories/chat_repository_impl.dart';
+import 'package:simple_chat/features/chats/domain/repositories/chat_repository.dart';
+import 'package:simple_chat/features/chats/domain/repositories/friend_repository.dart';
+import 'package:simple_chat/features/chats/domain/usecases/get_direct_conversation.dart';
+import 'package:simple_chat/features/chats/data/datasources/friend_remote_datasource.dart';
+import 'package:simple_chat/features/chats/data/repositories/friend_repository_impl.dart';
+import 'package:simple_chat/features/chats/domain/usecases/get_conversations_usecase.dart';
+import 'package:simple_chat/features/chats/domain/usecases/get_friends_usecase.dart';
+import 'package:simple_chat/features/chats/domain/usecases/get_messages_usecase.dart';
 import '../../features/auth/domain/usecases/login_usecase.dart';
 import '../../features/auth/domain/usecases/register_usecase.dart';
 import '../network/api_client.dart';
@@ -53,6 +55,8 @@ void setupServiceLocator() {
 
   // Usecases
   sl.registerLazySingleton(() => GetFriendsUsecase(sl()));
+  sl.registerLazySingleton(() => GetConversationsUsecase(sl()));
+  sl.registerLazySingleton(() => GetMessagesUsecase(sl()));
 
   // === Chat Feature ===  // ADD THIS SECTION
   // Datasources

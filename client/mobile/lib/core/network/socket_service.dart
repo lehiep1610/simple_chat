@@ -1,6 +1,8 @@
+import 'dart:async';
+
 import 'package:simple_chat/core/constants/api_constants.dart';
 import 'package:simple_chat/core/session/auth_session_manager.dart';
-import 'package:simple_chat/features/chat/data/models/message_model.dart';
+import 'package:simple_chat/features/chats/data/models/message_model.dart';
 import 'package:socket_io_client/socket_io_client.dart' as IO;
 
 class SocketService {
@@ -14,12 +16,13 @@ class SocketService {
   bool isConnected() => _socket?.connected ?? false;
 
   Future<void> connect() async {
-    final token = _authSessionManager.authToken;
-    if (_socket?.connect == true) {
+    if (_socket?.connected == true) {
       print('Socket already connected');
       return;
     }
 
+    final completer = Completer<void>();
+    final token = _authSessionManager.authToken;
     final socketUrl = ApiConstants.baseUrl.replaceAll('/api', '');
 
     _socket = IO.io(
@@ -33,6 +36,9 @@ class SocketService {
 
     _socket?.onConnect((_) {
       print('Socket connected');
+      if (!completer.isCompleted) {
+        completer.complete();
+      }
     });
 
     _socket?.onDisconnect((_) {
@@ -41,11 +47,20 @@ class SocketService {
 
     _socket?.onConnectError((error) {
       print('Socket connection error: $error');
+      if (!completer.isCompleted) {
+        completer.completeError(error);
+      }
     });
 
     _socket?.onError((error) {
       print('Socket error: $error');
     });
+
+    return completer.future;
+  }
+
+  void joinConversation(String conversationId) {
+    _socket?.emit('join:conversation', conversationId);
   }
 
   void sendMessage({

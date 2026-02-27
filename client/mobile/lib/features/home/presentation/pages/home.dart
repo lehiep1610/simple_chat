@@ -1,137 +1,66 @@
 import 'package:flutter/material.dart';
 import 'package:simple_chat/core/di/service_locator.dart';
-import 'package:simple_chat/core/router/app_router.dart';
-import 'package:simple_chat/core/router/route_names.dart';
-import 'package:simple_chat/core/utils/error_handler.dart';
-import 'package:simple_chat/features/home/domain/entities/friend.dart';
-import 'package:simple_chat/features/home/domain/usecases/get_friends_usecase.dart';
+import 'package:simple_chat/core/session/auth_session_manager.dart';
+import 'package:simple_chat/features/chats/presentation/pages/inbox.dart';
+import 'package:simple_chat/features/notifications/presentation/notifications.dart';
+import 'package:simple_chat/features/people/presentation/people.dart';
+import 'package:simple_chat/features/settings/presentation/settings.dart';
 
-class HomePage extends StatefulWidget {
-  final String userId;
-  const HomePage({super.key, required this.userId});
+class Home extends StatefulWidget {
+  const Home({super.key});
 
   @override
-  State<HomePage> createState() => _HomePageState();
+  State<Home> createState() => _HomeState();
 }
 
-class _HomePageState extends State<HomePage> {
-  final GetFriendsUsecase _getFriendsUsecase = sl<GetFriendsUsecase>();
+class _HomeState extends State<Home> {
+  int _currentIndex = 0;
 
-  List<Friend> _friends = [];
-  bool _isLoading = false;
-  String? _error;
+  late final List<Widget> _pages;
 
   @override
   void initState() {
     super.initState();
-    _getFriends();
-  }
-
-  Future<void> _getFriends() async {
-    setState(() {
-      _isLoading = true;
-      _error = null;
-    });
-
-    final result = await _getFriendsUsecase.getFriends();
-    if (mounted) {
-      result.fold(
-        (failure) {
-          setState(() {
-            _error = failure.message;
-            _isLoading = false;
-          });
-          ErrorHandler.handleFailure(context, failure);
-        },
-        (friends) {
-          setState(() {
-            _friends = friends;
-            _isLoading = false;
-          });
-        },
-      );
-    }
+    final userId = sl<AuthSessionManager>().userId ?? '';
+    _pages = [
+      Inbox(userId: userId),
+      const PeoplePage(),
+      const NotificationsPage(),
+      const SettingsPage(),
+    ];
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text(
-          'Simple chat',
-          style: Theme.of(context).textTheme.headlineMedium,
-        ),
-      ),
-      body: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 16),
-        child: Column(mainAxisAlignment: .start, children: [_listFriend()]),
-      ),
-    );
-  }
-
-  Widget _listFriend() {
-    return Expanded(
-      child: ListView.separated(
-        shrinkWrap: true,
-        itemBuilder: (context, index) => _friendWidget(_friends[index]),
-        separatorBuilder: (context, index) => SizedBox(width: 6),
-        scrollDirection: .horizontal,
-        itemCount: _friends.length,
-      ),
-    );
-  }
-
-  Widget _friendWidget(Friend friend) {
-    return Column(
-      children: [
-        GestureDetector(
-          onTap: () {
-            AppRouter.navigateTo(
-              context,
-              RouteNames.chat,
-              arguments: {
-                'friendId': friend.id,
-                'friendName': friend.name,
-                'userId': widget.userId,
-              },
-            );
-          },
-          child: CircleAvatar(
-            radius: 32,
-            backgroundColor: friend.avatarUrl != null
-                ? null
-                : Colors.grey.shade300,
-            child: friend.avatarUrl == null
-                ? Image.asset(
-                    'assets/images/default_avatar.png',
-                    width: 36,
-                    height: 36,
-                    fit: BoxFit.cover,
-                  )
-                : ClipOval(
-                    clipBehavior: .hardEdge,
-                    child: Image.network(
-                      friend.avatarUrl!,
-                      errorBuilder: (context, error, stackTrace) => Image.asset(
-                        'assets/images/default_avatar.png',
-                        width: 36,
-                        height: 36,
-                        fit: BoxFit.cover,
-                      ),
-                    ),
-                  ),
+      body: IndexedStack(index: _currentIndex, children: _pages),
+      bottomNavigationBar: BottomNavigationBar(
+        currentIndex: _currentIndex,
+        onTap: (index) => setState(() => _currentIndex = index),
+        type: BottomNavigationBarType.fixed,
+        items: const [
+          BottomNavigationBarItem(
+            icon: Icon(Icons.chat_bubble_outline),
+            activeIcon: Icon(Icons.chat_bubble),
+            label: 'Chats',
           ),
-        ),
-        SizedBox(
-          width: 64,
-          child: Text(
-            friend.name,
-            maxLines: 1,
-            overflow: .ellipsis,
-            textAlign: .center,
+          BottomNavigationBarItem(
+            icon: Icon(Icons.people_outline),
+            activeIcon: Icon(Icons.people),
+            label: 'People',
           ),
-        ),
-      ],
+          BottomNavigationBarItem(
+            icon: Icon(Icons.notifications_outlined),
+            activeIcon: Icon(Icons.notifications),
+            label: 'Notifications',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.settings_outlined),
+            activeIcon: Icon(Icons.settings),
+            label: 'Settings',
+          ),
+        ],
+      ),
     );
   }
 }
