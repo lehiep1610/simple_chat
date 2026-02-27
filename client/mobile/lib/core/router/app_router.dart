@@ -30,6 +30,7 @@ class AppRouter {
             friendId: args['friendId'] as String,
             friendName: args['friendName'] as String,
             userId: args['userId'] as String,
+            conversationId: args['conversationId'] as String?,
           ),
           settings,
         );

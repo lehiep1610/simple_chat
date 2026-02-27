@@ -13,6 +13,7 @@ import 'package:simple_chat/features/chats/data/datasources/friend_remote_dataso
 import 'package:simple_chat/features/chats/data/repositories/friend_repository_impl.dart';
 import 'package:simple_chat/features/chats/domain/usecases/get_conversations_usecase.dart';
 import 'package:simple_chat/features/chats/domain/usecases/get_friends_usecase.dart';
+import 'package:simple_chat/features/chats/domain/usecases/get_messages_usecase.dart';
 import '../../features/auth/domain/usecases/login_usecase.dart';
 import '../../features/auth/domain/usecases/register_usecase.dart';
 import '../network/api_client.dart';
@@ -55,6 +56,7 @@ void setupServiceLocator() {
   // Usecases
   sl.registerLazySingleton(() => GetFriendsUsecase(sl()));
   sl.registerLazySingleton(() => GetConversationsUsecase(sl()));
+  sl.registerLazySingleton(() => GetMessagesUsecase(sl()));
 
   // === Chat Feature ===  // ADD THIS SECTION
   // Datasources

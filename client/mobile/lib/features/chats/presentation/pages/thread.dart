@@ -2,21 +2,25 @@ import 'package:flutter/material.dart';
 import 'package:simple_chat/core/di/service_locator.dart';
 import 'package:simple_chat/core/network/socket_service.dart';
 import 'package:simple_chat/core/utils/error_handler.dart';
-import 'package:simple_chat/features/chats/domain/entities/conversation.dart';
 import 'package:simple_chat/features/chats/domain/usecases/get_direct_conversation.dart';
+import 'package:simple_chat/features/chats/domain/usecases/get_messages_usecase.dart';
 import 'package:simple_chat/features/chats/presentation/widgets/message_bubble.dart';
 import 'package:simple_chat/features/chats/presentation/widgets/message_input.dart';
+
+import '../../domain/entities/message_page.dart';
 
 class Thread extends StatefulWidget {
   final String friendId;
   final String friendName;
   final String userId;
+  final String? conversationId;
 
   const Thread({
     super.key,
     required this.friendId,
     required this.friendName,
     required this.userId,
+    this.conversationId,
   });
 
   @override
@@ -24,11 +28,13 @@ class Thread extends StatefulWidget {
 }
 
 class _ThreadState extends State<Thread> {
+  final GetMessagesUsecase _getMessagesUsecase = sl<GetMessagesUsecase>();
   final GetConversationUsecase _getConversationUsecase =
       sl<GetConversationUsecase>();
   late SocketService _socketService;
 
-  Conversation? _conversation;
+  MessagePage _messagesPage = MessagePage(messages: [], hasMore: false);
+  String _conversationId = '';
   bool _isLoading = false;
   String? _error;
 
@@ -41,10 +47,8 @@ class _ThreadState extends State<Thread> {
 
   Future<void> _initializeChat() async {
     await _socketService.connect();
-    await _loadConversation();
-    if (_conversation != null) {
-      _listenToNewMessages();
-    }
+    await _loadMessages();
+    _listenToNewMessages();
   }
 
   void _listenToNewMessages() {
@@ -52,11 +56,11 @@ class _ThreadState extends State<Thread> {
       if (mounted) {
         setState(() {
           // dedupe
-          final isDuplicate = _conversation!.messages.any(
+          final isDuplicate = _messagesPage.messages.any(
             (m) => m.id == message.id,
           );
           if (!isDuplicate) {
-            _conversation!.messages.add(message);
+            _messagesPage.messages.add(message);
           }
         });
       }
@@ -71,15 +75,25 @@ class _ThreadState extends State<Thread> {
     });
   }
 
-  Future<void> _loadConversation() async {
+  Future<void> _loadMessages() async {
     setState(() {
       _isLoading = true;
       _error = null;
     });
 
-    final result = await _getConversationUsecase.getDirectConversation(
-      widget.friendId,
-    );
+    if (widget.conversationId != null) {
+      _conversationId = widget.conversationId!;
+    } else {
+      final result = await _getConversationUsecase.getDirectConversation(
+        widget.friendId,
+      );
+      result.fold(
+        (failure) => ErrorHandler.handleFailure(context, failure),
+        (conversationId) => _conversationId = conversationId,
+      );
+    }
+
+    final result = await _getMessagesUsecase.getMessages(_conversationId);
 
     if (mounted) {
       result.fold(
@@ -90,9 +104,9 @@ class _ThreadState extends State<Thread> {
           });
           ErrorHandler.handleFailure(context, failure);
         },
-        (conversation) {
+        (messages) {
           setState(() {
-            _conversation = conversation;
+            _messagesPage = messages;
             _isLoading = false;
           });
         },
@@ -101,11 +115,11 @@ class _ThreadState extends State<Thread> {
   }
 
   Future<void> _handleSendMessage(String content) async {
-    if (_conversation == null || content.trim().isEmpty) return;
+    if (_conversationId.isEmpty || content.trim().isEmpty) return;
 
     if (_socketService.isConnected()) {
       _socketService.sendMessage(
-        conversationId: _conversation!.id,
+        conversationId: _conversationId,
         body: content.trim(),
         messageType: 'text',
       );
@@ -145,7 +159,7 @@ class _ThreadState extends State<Thread> {
             Text('Error: $_error'),
             const SizedBox(height: 16),
             ElevatedButton(
-              onPressed: _loadConversation,
+              onPressed: _loadMessages,
               child: const Text('Retry'),
             ),
           ],
@@ -153,7 +167,7 @@ class _ThreadState extends State<Thread> {
       );
     }
 
-    if (_conversation == null || _conversation!.messages.isEmpty) {
+    if (_messagesPage.messages.isEmpty) {
       return const Center(
         child: Text('No messages yet. Start the conversation!'),
       );
@@ -161,9 +175,9 @@ class _ThreadState extends State<Thread> {
 
     return ListView.builder(
       padding: const EdgeInsets.symmetric(vertical: 8),
-      itemCount: _conversation!.messages.length,
+      itemCount: _messagesPage.messages.length,
       itemBuilder: (context, index) {
-        final message = _conversation!.messages[index];
+        final message = _messagesPage.messages[index];
         final isMe = message.senderId == widget.userId;
         return MessageBubble(message: message, isMe: isMe);
       },

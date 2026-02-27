@@ -181,6 +181,7 @@ class _InboxState extends State<Inbox> {
             'friendId': summary.id,
             'friendName': summary.name,
             'userId': widget.userId,
+            'conversationId': summary.id,
           },
         );
       },

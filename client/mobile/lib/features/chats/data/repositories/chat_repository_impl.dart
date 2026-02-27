@@ -2,9 +2,9 @@ import 'package:fpdart/fpdart.dart';
 import 'package:simple_chat/core/errors/exceptions.dart';
 import 'package:simple_chat/core/errors/failures.dart';
 import 'package:simple_chat/features/chats/data/datasources/chat_remote_datasource.dart';
-import 'package:simple_chat/features/chats/domain/entities/conversation.dart';
 import 'package:simple_chat/features/chats/domain/entities/conversation_summary.dart';
 import 'package:simple_chat/features/chats/domain/entities/message.dart';
+import 'package:simple_chat/features/chats/domain/entities/message_page.dart';
 import 'package:simple_chat/features/chats/domain/repositories/chat_repository.dart';
 
 class ChatRepositoryImpl implements ChatRepository {
@@ -12,14 +12,12 @@ class ChatRepositoryImpl implements ChatRepository {
   ChatRepositoryImpl(this.chatRemoteDatasource);
 
   @override
-  Future<Either<Failure, Conversation>> getDirectConversation(
-    String friendId,
-  ) async {
+  Future<Either<Failure, String>> getDirectConversation(String friendId) async {
     try {
-      final conversation = await chatRemoteDatasource.getDirectConversation(
+      final conversationId = await chatRemoteDatasource.getDirectConversation(
         friendId,
       );
-      return Right(conversation);
+      return Right(conversationId);
     } on ServerException catch (e) {
       return Left(ServerFailure(message: e.message));
     } on NetworkException {
@@ -60,6 +58,24 @@ class ChatRepositoryImpl implements ChatRepository {
       final conversationSummaries = await chatRemoteDatasource
           .getConversationSummaries();
       return Right(conversationSummaries);
+    } on ServerException catch (e) {
+      return Left(ServerFailure(message: e.message));
+    }
+  }
+
+  @override
+  Future<Either<Failure, MessagePage>> getMessages(
+    String conversationId, {
+    int limit = 50,
+    int offset = 0,
+  }) async {
+    try {
+      final messages = await chatRemoteDatasource.getMessages(
+        conversationId,
+        limit: limit,
+        offset: offset,
+      );
+      return Right(messages);
     } on ServerException catch (e) {
       return Left(ServerFailure(message: e.message));
     }

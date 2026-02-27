@@ -1,6 +1,5 @@
 import 'package:fpdart/fpdart.dart';
 import 'package:simple_chat/core/errors/failures.dart';
-import 'package:simple_chat/features/chats/domain/entities/conversation.dart';
 import 'package:simple_chat/features/chats/domain/entities/message.dart';
 import 'package:simple_chat/features/chats/domain/repositories/chat_repository.dart';
 
@@ -8,7 +7,7 @@ class GetConversationUsecase {
   final ChatRepository chatRepository;
   GetConversationUsecase(this.chatRepository);
 
-  Future<Either<Failure, Conversation>> getDirectConversation(String friendId) {
+  Future<Either<Failure, String>> getDirectConversation(String friendId) {
     return chatRepository.getDirectConversation(friendId);
   }
 
