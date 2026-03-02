@@ -4,10 +4,24 @@ import { Conversation } from "../../domain/entities/conversation.entity";
 export class ConversationDatasource {
     async findByUserId(userId: string): Promise<Conversation[]> {
         const result = await pool.query(`
-            SELECT c.id, c.name, c.last_message, c.last_message_at, c.avatar_url, c.created_at, c.updated_at
+            SELECT 
+            c.id,
+            COALESCE(c.name, u_other.name) AS name,
+            c.last_message,
+            c.last_message_at,
+            COALESCE(c.avatar_url, u_other.avatar_url) AS avatar_url,
+            c.created_at,
+            c.updated_at
             FROM conversations c
-            INNER JOIN conversation_participants cp ON c.id = cp.conversation_id
-            WHERE cp.user_id = $1
+            INNER JOIN conversation_participants cp 
+            ON c.id = cp.conversation_id AND cp.user_id = $1
+            LEFT JOIN LATERAL (
+            SELECT u.name, u.avatar_url
+            FROM conversation_participants cp2
+            INNER JOIN users u ON cp2.user_id = u.id
+            WHERE cp2.conversation_id = c.id AND cp2.user_id != $1
+            LIMIT 1
+            ) u_other ON TRUE
             ORDER BY COALESCE(c.last_message_at, c.updated_at) DESC
             `, [userId]);
         if (result.rows.length === 0) return [];
@@ -48,18 +62,12 @@ export class ConversationDatasource {
             let conversationName: string | null = params.name ?? null;
             let conversationAvatarUrl: string | null = null;
 
+            const isDirect = params.participants.length === 2;
+
             // DM (Direct Message) conversation
-            if (!conversationName && params.participants.length === 2) {
-                const otherUserId = params.participants.find(id => id !== params.creatorId);
-                if (otherUserId) {
-                    const otherUser = await client.query(`
-                        SELECT name, avatar_url FROM users WHERE id = $1
-                        `, [otherUserId]);
-                    if (otherUser.rows.length > 0) {
-                        conversationName = otherUser.rows[0].name;
-                        conversationAvatarUrl = otherUser.rows[0].avatar_url;
-                    }
-                }
+            if (isDirect) {
+                conversationName = null;
+                conversationAvatarUrl = null;
             }
 
             // create conversation
