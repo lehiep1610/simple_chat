@@ -6,11 +6,11 @@ import 'package:simple_chat/core/utils/either_extension.dart';
 import 'package:simple_chat/core/utils/validators.dart';
 import 'package:simple_chat/core/widgets/app_button.dart';
 
-import '../../../../core/di/service_locator.dart';
-import '../../../../core/utils/error_handler.dart';
-import '../../../../core/utils/snackbar_helper.dart';
-import '../../../../core/widgets/loading_overlay.dart';
-import '../../domain/usecases/login_usecase.dart';
+import '../../../../../core/di/service_locator.dart';
+import '../../../../../core/utils/error_handler.dart';
+import '../../../../../core/utils/snackbar_helper.dart';
+import '../../../../../core/widgets/loading_overlay.dart';
+import '../../../domain/usecases/login_usecase.dart';
 
 class LoginPage extends StatefulWidget {
   final ThemeProvider themeProvider;
@@ -179,7 +179,7 @@ class _AppBar extends StatelessWidget {
       actions: [
         Switch(
           activeTrackColor: Colors.white,
-          activeThumbColor: Colors.blue,
+          inactiveThumbColor: Colors.blue,
           value: themeProvider.isDarkMode,
           onChanged: (value) {
             themeProvider.toggleTheme();
@@ -224,7 +224,7 @@ class _PasswordFieldState extends State<_PasswordField> {
   @override
   Widget build(BuildContext context) {
     return Column(
-      crossAxisAlignment: .start,
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         TextField(
           controller: widget.controller,
@@ -304,18 +304,20 @@ class _RequirementItem extends StatelessWidget {
         Icon(
           isValid ? Icons.check_circle : Icons.check_circle_outline,
           size: 20,
-          color: isValid
-              ? Colors.green
-              : Theme.of(context).colorScheme.onSurface.withAlpha(50),
+          color:
+              isValid
+                  ? Colors.green
+                  : Theme.of(context).colorScheme.onSurface.withAlpha(50),
         ),
         SizedBox(width: 8),
         Text(
           text,
           style: TextStyle(
             fontSize: 12,
-            color: isValid
-                ? Colors.green
-                : Theme.of(context).colorScheme.onSurface.withAlpha(70),
+            color:
+                isValid
+                    ? Colors.green
+                    : Theme.of(context).colorScheme.onSurface.withAlpha(70),
           ),
         ),
       ],

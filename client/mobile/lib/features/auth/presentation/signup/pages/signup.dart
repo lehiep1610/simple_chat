@@ -3,11 +3,11 @@ import 'package:simple_chat/core/router/app_router.dart';
 import 'package:simple_chat/core/router/route_names.dart';
 import 'package:simple_chat/core/utils/validators.dart';
 
-import '../../../../core/di/service_locator.dart';
-import '../../../../core/utils/error_handler.dart';
-import '../../../../core/utils/snackbar_helper.dart';
-import '../../../../core/widgets/loading_overlay.dart';
-import '../../domain/usecases/register_usecase.dart';
+import '../../../../../core/di/service_locator.dart';
+import '../../../../../core/utils/error_handler.dart';
+import '../../../../../core/utils/snackbar_helper.dart';
+import '../../../../../core/widgets/loading_overlay.dart';
+import '../../../domain/usecases/register_usecase.dart';
 
 class SignUpPage extends StatefulWidget {
   const SignUpPage({super.key});

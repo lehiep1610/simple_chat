@@ -6,7 +6,7 @@ import 'package:simple_chat/core/router/route_observer.dart';
 import 'package:simple_chat/core/session/auth_session_manager.dart';
 import 'package:simple_chat/core/theme/app_theme.dart';
 import 'package:simple_chat/core/theme/theme_provider.dart';
-import 'package:simple_chat/features/auth/presentation/pages/login.dart';
+import 'package:simple_chat/features/auth/presentation/login/pages/login.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();

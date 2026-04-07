@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:simple_chat/features/auth/presentation/pages/signup.dart';
+import 'package:simple_chat/features/auth/presentation/signup/pages/signup.dart';
 import 'package:simple_chat/features/chats/presentation/pages/inbox.dart';
 import 'package:simple_chat/features/chats/presentation/pages/thread.dart';
 import 'package:simple_chat/features/home/presentation/pages/home.dart';
-import '../../features/auth/presentation/pages/login.dart';
+import '../../features/auth/presentation/login/pages/login.dart';
 import '../theme/theme_provider.dart';
 import 'route_names.dart';
 

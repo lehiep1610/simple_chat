@@ -31,22 +31,21 @@ class _ThreadState extends State<Thread> {
   final GetMessagesUsecase _getMessagesUsecase = sl<GetMessagesUsecase>();
   final GetConversationUsecase _getConversationUsecase =
       sl<GetConversationUsecase>();
-  late SocketService _socketService;
+  final SocketService _socketService = sl<SocketService>();
 
   MessagePage _messagesPage = MessagePage(messages: [], hasMore: false);
   String _conversationId = '';
+
   bool _isLoading = false;
   String? _error;
 
   @override
   void initState() {
     super.initState();
-    _socketService = sl<SocketService>();
     _initializeChat();
   }
 
   Future<void> _initializeChat() async {
-    await _socketService.connect();
     await _loadMessages();
     _listenToNewMessages();
   }
@@ -87,12 +86,13 @@ class _ThreadState extends State<Thread> {
       final result = await _getConversationUsecase.getDirectConversation(
         widget.friendId,
       );
-      result.fold(
-        (failure) => ErrorHandler.handleFailure(context, failure),
-        (conversationId) => _conversationId = conversationId,
-      );
+      result.fold((failure) => ErrorHandler.handleFailure(context, failure), (
+        conversationId,
+      ) {
+        _conversationId = conversationId;
+        _socketService.joinConversation(_conversationId);
+      });
     }
-    _socketService.joinConversation(_conversationId);
 
     final result = await _getMessagesUsecase.getMessages(_conversationId);
 
@@ -183,12 +183,5 @@ class _ThreadState extends State<Thread> {
         return MessageBubble(message: message, isMe: isMe);
       },
     );
-  }
-
-  @override
-  void dispose() {
-    _socketService.removeAllListeners();
-    _socketService.disconnect();
-    super.dispose();
   }
 }
