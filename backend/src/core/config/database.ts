@@ -73,10 +73,26 @@ export const initDatabase = async () => {
             )
         `)
 
+        // create friend_requests table
+        await pool.query(`
+            CREATE TABLE IF NOT EXISTS friend_requests (
+                id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+                requester_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+                recipient_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+                status VARCHAR(20) NOT NULL DEFAULT 'pending'
+                    CHECK (status IN ('pending', 'accepted', 'rejected')),
+                created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+                updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+                UNIQUE (requester_id, recipient_id)
+            )
+        `)
+
         // indexes
         await pool.query(`
             CREATE INDEX IF NOT EXISTS idx_message_conversation_id ON messages(conversation_id);
             CREATE INDEX IF NOT EXISTS idx_conversation_participants_user_id ON conversation_participants(user_id);
+            CREATE INDEX IF NOT EXISTS idx_friend_requests_recipient_id ON friend_requests(recipient_id);
+            CREATE INDEX IF NOT EXISTS idx_friend_requests_requester_id ON friend_requests(requester_id);
             `)
 
         console.log('All table created successfully');

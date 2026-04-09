@@ -14,6 +14,12 @@ import 'package:simple_chat/features/chats/data/repositories/friend_repository_i
 import 'package:simple_chat/features/chats/domain/usecases/get_conversations_usecase.dart';
 import 'package:simple_chat/features/chats/domain/usecases/get_friends_usecase.dart';
 import 'package:simple_chat/features/chats/domain/usecases/get_messages_usecase.dart';
+import 'package:simple_chat/features/people/data/datasources/people_remote_datasource.dart';
+import 'package:simple_chat/features/people/data/repositories/people_repository_impl.dart';
+import 'package:simple_chat/features/people/domain/repositories/people_repository.dart';
+import 'package:simple_chat/features/people/domain/usecases/get_users_usecase.dart';
+import 'package:simple_chat/features/people/domain/usecases/send_friend_request_usecase.dart';
+import 'package:simple_chat/features/people/presentation/cubit/people_cubit.dart';
 import '../../features/auth/domain/usecases/login_usecase.dart';
 import '../../features/auth/domain/usecases/register_usecase.dart';
 import '../network/api_client.dart';
@@ -72,5 +78,28 @@ void setupServiceLocator() {
 
   sl.registerLazySingleton<SocketService>(
     () => SocketService(authSessionManager: sl()),
+  );
+
+  // === People Feature ===
+  // Datasources
+  sl.registerLazySingleton<PeopleRemoteDatasource>(
+    () => PeopleRemoteDatasourceImpl(apiClient: sl()),
+  );
+
+  // Repositories
+  sl.registerLazySingleton<PeopleRepository>(
+    () => PeopleRepositoryImpl(sl()),
+  );
+
+  // Usecases
+  sl.registerLazySingleton(() => GetUsersUsecase(sl()));
+  sl.registerLazySingleton(() => SendFriendRequestUsecase(sl()));
+
+  // Cubit - factory so each page gets fresh state
+  sl.registerFactory(
+    () => PeopleCubit(
+      getUsersUsecase: sl(),
+      sendFriendRequestUsecase: sl(),
+    ),
   );
 }

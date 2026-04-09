@@ -16,4 +16,8 @@ export class FriendshipRepositoryImpl implements FriendshipRepository {
     async removeFriend(userId: string, friendId: string): Promise<void> {
         return this.friendshipDatasource.removeFriend(userId, friendId);
     }
+
+    async sendFriendRequest(requesterId: string, recipientId: string): Promise<void> {
+        return this.friendshipDatasource.sendFriendRequest(requesterId, recipientId);
+    }
 }

@@ -3,6 +3,7 @@ import authRoutes from './features/auth/presentation/routes/auth.routes';
 import friendshipRoutes from './features/friendship/presentation/routes/friendship.routes';
 import { AppError } from './core/errors/app-error';
 import chatRoutes from './features/chat/presentation/routes/chat.routes';
+import usersRoutes from './features/users/presentation/routes/users.routes';
 
 const app = express();
 
@@ -13,6 +14,7 @@ app.use(express.json());
 app.use('/api/auth', authRoutes);
 app.use('/api/friends', friendshipRoutes)
 app.use('/api/chat', chatRoutes)
+app.use('/api/users', usersRoutes)
 
 // Error handler
 app.use((err: Error, req: express.Request, res: express.Response, next: express.NextFunction) => {
