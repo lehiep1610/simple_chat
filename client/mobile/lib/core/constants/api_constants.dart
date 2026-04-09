@@ -11,6 +11,10 @@ class ApiConstants {
   // Friend
   static const String getFriends = '/friends';
 
+  // People
+  static const String users = '/users';
+  static const String sendFriendRequest = '/friends/requests';
+
   // Chat
   static const String conversations = '/chat/conversations';
   static const String directConversation = '/chat/direct';

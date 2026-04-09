@@ -49,4 +49,12 @@ export class FriendshipDatasource {
             WHERE user_low_id = $1 AND user_high_id = $2
         `, [userLowId, userHighId]);
     }
+
+    async sendFriendRequest(requesterId: string, recipientId: string): Promise<void> {
+        await pool.query(`
+            INSERT INTO friend_requests (requester_id, recipient_id, status)
+            VALUES ($1, $2, 'pending')
+            ON CONFLICT (requester_id, recipient_id) DO NOTHING
+        `, [requesterId, recipientId]);
+    }
 }
